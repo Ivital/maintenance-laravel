@@ -31,10 +31,20 @@ class ThemeServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'theme');
-        if ($this->app->runningInConsole()) {
-            $this->commands([ThemeCacheCommand::class, ThemeClearCommand::class, ThemeValidateCommand::class]);
+        $viewsPath = __DIR__.'/../../resources/views';
+
+        if (is_dir($viewsPath)) {
+            $this->loadViewsFrom($viewsPath, 'theme');
         }
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ThemeCacheCommand::class,
+                ThemeClearCommand::class,
+                ThemeValidateCommand::class,
+            ]);
+        }
+
         $themeManager = $this->app->make(ThemeManager::class);
         $themeManager->setTheme($this->determineActiveTheme());
 

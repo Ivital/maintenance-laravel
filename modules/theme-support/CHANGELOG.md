@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.1
+
+- Avoid registering a missing package view directory so Laravel production view caching succeeds.
+- Synchronize Composer and module manifest versions.
+
+- Always include the host Tailwind stylesheet alongside the active theme stylesheet.
+
 ## 1.4.3 - 2026-08-24
 
 - Ignore duplicate tracked package paths when Composer also exposes the same theme.
