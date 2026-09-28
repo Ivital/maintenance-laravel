@@ -30,8 +30,12 @@ class ThemeServiceProvider extends ServiceProvider
      * Bootstrap services.
      */
     public function boot(): void
-    {
-        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'theme');
+	{
+		$viewsPath = __DIR__.'/../../resources/views';
+
+		if (is_dir($viewsPath)) {
+			$this->loadViewsFrom($viewsPath, 'theme');
+		}
         if ($this->app->runningInConsole()) {
             $this->commands([ThemeCacheCommand::class, ThemeClearCommand::class, ThemeValidateCommand::class]);
         }
