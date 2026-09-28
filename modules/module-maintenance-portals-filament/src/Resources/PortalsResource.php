@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Portals\Filament\Resources;
 
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,10 +17,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Portal\Actions\DeletePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
+use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\CreatePortal;
 use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\EditPortal;
 use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\ListPortals;
-use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 
 class PortalsResource extends Resource
 {

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Reporting\Filament\Resources;
 
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,11 +17,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
+use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\CreateReport;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\EditReport;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\ListReports;
-use Liberu\Modules\Maintenance\Report\Models\ReportKind;
-use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 class ReportingResource extends Resource
 {
