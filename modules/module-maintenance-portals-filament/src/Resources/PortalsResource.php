@@ -16,9 +16,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Portal\Actions\DeletePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
-use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\CreatePortal;
-use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\EditPortal;
-use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\ListPortals;
+use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\CreatePortal;
+use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\EditPortal;
+use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages\ListPortals;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 
 class PortalsResource extends Resource

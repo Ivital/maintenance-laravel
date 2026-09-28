@@ -28,7 +28,10 @@ return new class() extends Migration
             $table->text('comments')->nullable();
             $table->boolean('would_recommend')->default(true);
             $table->timestamps();
-            $table->index(['team_id', 'vendor_name', 'evaluation_date']);
+            $table->index(
+                ['team_id', 'vendor_name', 'evaluation_date'],
+                'mve_team_vendor_date_idx'
+            );
             $table->index(['team_id', 'overall_rating']);
         });
     }

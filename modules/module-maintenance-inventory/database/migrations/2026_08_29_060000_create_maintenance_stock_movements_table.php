@@ -21,7 +21,10 @@ return new class() extends Migration
             $table->string('reason', 64)->default('adjustment');
             $table->text('notes')->nullable();
             $table->timestamps();
-            $table->index(['team_id', 'stock_item_id', 'created_at']);
+            $table->index(
+                ['team_id', 'stock_item_id', 'created_at'],
+                'msm_team_item_created_idx'
+            );
         });
     }
 

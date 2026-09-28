@@ -20,8 +20,15 @@ return new class() extends Migration
             $table->string('territory')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
-            $table->index(['team_id', 'starts_at']);
-            $table->index(['team_id', 'resource_key', 'starts_at']);
+            $table->index(
+                ['team_id', 'starts_at'],
+                'mse_team_starts_idx'
+            );
+
+            $table->index(
+                ['team_id', 'resource_key', 'starts_at'],
+                'mse_team_resource_starts_idx'
+            );
         });
     }
 
