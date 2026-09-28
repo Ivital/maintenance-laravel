@@ -105,7 +105,7 @@ jobs:
   deploy:
     name: Deploy to ergodata-lnx
     needs: gate
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: [self-hosted, Linux, X64, toir2]
     timeout-minutes: 30
     environment: production
 

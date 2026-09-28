@@ -97,3 +97,31 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
+        
+      - name: Install production PHP dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Production install preserves tracked packages
+        run: |
+          if ! git diff --exit-code --stat -- modules themes; then
+            echo "::error::A production install rewrote tracked files under modules/ or themes/."
+            echo "Release the package from its own repository and update composer.lock."
+            exit 1
+          fi
+
+      - name: Build Laravel production caches
+        run: |
+          CACHE_STORE=array php artisan optimize:clear
+          php artisan optimize
+        env:
+          APP_ENV: production
+          APP_DEBUG: 'false'
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: toir2_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+          CACHE_STORE: database
+          SESSION_DRIVER: database
+          QUEUE_CONNECTION: database
