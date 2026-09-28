@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Foundation\RolesPermissions\Models\Role;
+use Livewire\Livewire;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -133,6 +134,26 @@ it('renders the tenant operational dashboard shell with every widget mounted', f
         ->assertSee('WorkOrderStatusChart')
         ->assertSee('UpcomingWorkOrders')
         ->assertSee('UpcomingMaintenanceSchedule');
+});
+
+it('renders the two operational table widgets for the active tenant', function (): void {
+    [$user, $team] = dashboardTeam();
+
+    $this->seed(MaintenanceDemoSeeder::class);
+
+    $this->actingAs($user);
+    Filament::setTenant($team, isQuiet: true);
+
+    Livewire::test(UpcomingWorkOrders::class)
+        ->assertOk()
+        ->assertSee('Найближчі та прострочені наряди')
+        ->assertSee('DEMO-WO-0001')
+        ->assertSee('[DEMO] Перевірити вібрацію насосного агрегату');
+
+    Livewire::test(UpcomingMaintenanceSchedule::class)
+        ->assertOk()
+        ->assertSee('Графік найближчих робіт')
+        ->assertSee('[DEMO] Плановий огляд насоса');
 });
 
 it('handles missing tenant defensively in dashboard widgets', function (): void {
