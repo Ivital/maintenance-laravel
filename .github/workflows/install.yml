@@ -97,7 +97,7 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
-        
+
       - name: Install production PHP dependencies
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 

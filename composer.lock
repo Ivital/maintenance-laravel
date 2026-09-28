@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10996a8bfd1478a15cc81afba4722866",
+    "content-hash": "d1ea72f8020a8d00206a47903ab5801b",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -9435,16 +9435,16 @@
         },
         {
             "name": "liberusoftware/theme-support",
-            "version": "1.4.3",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/liberusoftware/module-theme-support.git",
-                "reference": "cc7019f1d077e498ad647bb566a28ae009b2cb1e"
+                "url": "https://github.com/Ivital/module-theme-support.git",
+                "reference": "1d3b3fe6c5a00f25e93497667591af0795389b62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liberusoftware/module-theme-support/zipball/cc7019f1d077e498ad647bb566a28ae009b2cb1e",
-                "reference": "cc7019f1d077e498ad647bb566a28ae009b2cb1e",
+                "url": "https://api.github.com/repos/Ivital/module-theme-support/zipball/1d3b3fe6c5a00f25e93497667591af0795389b62",
+                "reference": "1d3b3fe6c5a00f25e93497667591af0795389b62",
                 "shasum": ""
             },
             "require": {
@@ -9490,10 +9490,9 @@
             ],
             "description": "Theme discovery and host presentation support for Liberu applications.",
             "support": {
-                "source": "https://github.com/liberusoftware/module-theme-support/tree/v1.4.3",
-                "issues": "https://github.com/liberusoftware/module-theme-support/issues"
+                "source": "https://github.com/Ivital/module-theme-support/tree/v1.5.1"
             },
-            "time": "2026-08-24T17:42:47+00:00"
+            "time": "2026-09-28T12:21:15+00:00"
         },
         {
             "name": "liberusoftware/theme-support-livewire",
