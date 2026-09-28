@@ -119,8 +119,8 @@ log "Installing frontend dependencies"
 log "Building frontend assets"
 "${NPM_BIN}" run build
 
-log "Clearing stale Laravel caches"
-"${PHP_BIN}" artisan optimize:clear
+log "Clearing stale Laravel caches without requiring the database cache table"
+CACHE_STORE=array "${PHP_BIN}" artisan optimize:clear
 
 log "Running database migrations"
 "${PHP_BIN}" artisan migrate --force
