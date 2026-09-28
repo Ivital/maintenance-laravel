@@ -11,23 +11,55 @@ use App\Models\User;
 use App\Support\MaintenanceDashboard;
 use Database\Seeders\MaintenanceDemoSeeder;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Foundation\RolesPermissions\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
 
-it('builds tenant-scoped operational maintenance dashboard metrics', function (): void {
+function dashboardTeam(string $name = 'Dashboard Team', bool $admin = false): array
+{
     $user = User::factory()->create();
 
     $team = new Team();
     $team->forceFill([
-        'name' => 'Dashboard Team',
+        'name' => $name,
         'personal_team' => false,
         'user_id' => $user->getKey(),
     ])->save();
 
     $user->teams()->syncWithoutDetaching([$team->getKey()]);
     $user->forceFill(['current_team_id' => $team->getKey()])->save();
+
+    if ($admin) {
+        $registrar = app(PermissionRegistrar::class);
+        $registrar->setPermissionsTeamId($team->getKey());
+
+        $role = Role::findOrCreate(
+            (string) config('filament-shield.super_admin.name', 'super_admin'),
+            'web',
+        );
+
+        $user->assignRole($role);
+
+        $registrar->forgetCachedPermissions();
+    }
+
+    return [$user, $team];
+}
+
+function invokeDashboardMethod(object $object, string $method): mixed
+{
+    $reflection = new ReflectionMethod($object, $method);
+    $reflection->setAccessible(true);
+
+    return $reflection->invoke($object);
+}
+
+it('builds tenant-scoped operational maintenance dashboard metrics', function (): void {
+    [, $team] = dashboardTeam();
 
     $this->seed(MaintenanceDemoSeeder::class);
 
@@ -61,29 +93,16 @@ it('builds tenant-scoped operational maintenance dashboard metrics', function ()
 });
 
 it('keeps dashboard metrics isolated by team', function (): void {
-    $firstUser = User::factory()->create();
-    $firstTeam = new Team();
-    $firstTeam->forceFill([
-        'name' => 'First',
-        'personal_team' => false,
-        'user_id' => $firstUser->getKey(),
-    ])->save();
-    $firstUser->teams()->syncWithoutDetaching([$firstTeam->getKey()]);
-    $firstUser->forceFill(['current_team_id' => $firstTeam->getKey()])->save();
+    [, $firstTeam] = dashboardTeam('First');
 
     $this->seed(MaintenanceDemoSeeder::class);
 
-    $secondUser = User::factory()->create();
-    $secondTeam = new Team();
-    $secondTeam->forceFill([
-        'name' => 'Second',
-        'personal_team' => false,
-        'user_id' => $secondUser->getKey(),
-    ])->save();
+    [, $secondTeam] = dashboardTeam('Second');
 
     $summary = app(MaintenanceDashboard::class)->summary((int) $secondTeam->getKey());
 
-    expect(array_sum($summary))->toBe(0);
+    expect(array_sum($summary))->toBe(0)
+        ->and($firstTeam->getKey())->not->toBe($secondTeam->getKey());
 });
 
 it('discovers the operational dashboard widgets in the admin panel', function (): void {
@@ -98,4 +117,64 @@ it('discovers the operational dashboard widgets in the admin panel', function ()
             UpcomingMaintenanceSchedule::class,
         )
         ->not->toContain(Filament\Widgets\FilamentInfoWidget::class);
+});
+
+it('renders the tenant operational dashboard shell with every widget mounted', function (): void {
+    [$user, $team] = dashboardTeam(admin: true);
+
+    $this->seed(MaintenanceDemoSeeder::class);
+
+    $this->actingAs($user)
+        ->get("/admin/{$team->getKey()}")
+        ->assertOk()
+        ->assertSee('Dashboard')
+        ->assertSee('MaintenanceOverviewStats')
+        ->assertSee('MaintenanceRiskStats')
+        ->assertSee('WorkOrderStatusChart')
+        ->assertSee('UpcomingWorkOrders')
+        ->assertSee('UpcomingMaintenanceSchedule');
+});
+
+it('handles missing tenant defensively in dashboard widgets', function (): void {
+    auth()->logout();
+    Filament::setTenant(null, isQuiet: true);
+
+    expect(invokeDashboardMethod(new MaintenanceOverviewStats(), 'getStats'))->toBe([])
+        ->and(invokeDashboardMethod(new MaintenanceRiskStats(), 'getStats'))->toBe([])
+        ->and(invokeDashboardMethod(new WorkOrderStatusChart(), 'getData'))->toBe([
+            'datasets' => [],
+            'labels' => [],
+        ])
+        ->and(invokeDashboardMethod(new WorkOrderStatusChart(), 'getType'))->toBe('doughnut');
+
+    $workOrdersQuery = invokeDashboardMethod(new UpcomingWorkOrders(), 'query');
+    $scheduleQuery = invokeDashboardMethod(new UpcomingMaintenanceSchedule(), 'query');
+
+    expect($workOrdersQuery)->toBeInstanceOf(Builder::class)
+        ->and($workOrdersQuery->count())->toBe(0)
+        ->and($scheduleQuery)->toBeInstanceOf(Builder::class)
+        ->and($scheduleQuery->count())->toBe(0);
+});
+
+it('exposes populated widget datasets for the active tenant', function (): void {
+    [$user, $team] = dashboardTeam();
+
+    $this->seed(MaintenanceDemoSeeder::class);
+
+    $this->actingAs($user);
+    Filament::setTenant($team, isQuiet: true);
+
+    expect(invokeDashboardMethod(new MaintenanceOverviewStats(), 'getStats'))->toHaveCount(6)
+        ->and(invokeDashboardMethod(new MaintenanceRiskStats(), 'getStats'))->toHaveCount(7);
+
+    $chart = invokeDashboardMethod(new WorkOrderStatusChart(), 'getData');
+
+    expect($chart['labels'])->toHaveCount(6)
+        ->and($chart['datasets'][0]['data'])->toBe([1, 0, 1, 0, 1, 0]);
+
+    $workOrdersQuery = invokeDashboardMethod(new UpcomingWorkOrders(), 'query');
+    $scheduleQuery = invokeDashboardMethod(new UpcomingMaintenanceSchedule(), 'query');
+
+    expect($workOrdersQuery->count())->toBe(2)
+        ->and($scheduleQuery->count())->toBe(1);
 });
