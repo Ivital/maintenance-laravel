@@ -14,12 +14,16 @@ return new class() extends Migration
             $table->id();
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->foreignId('work_order_id')->constrained('maintenance_work_orders')->cascadeOnDelete();
-            $table->foreignId('depends_on_work_order_id')->constrained('maintenance_work_orders')->cascadeOnDelete();
+            $table->foreignId('depends_on_work_order_id');
+            $table->foreign('depends_on_work_order_id', 'mwod_depends_on_order_fk')
+                ->references('id')
+                ->on('maintenance_work_orders')
+                ->cascadeOnDelete();
             $table->timestamps();
             $table->unique(
-                ['work_order_id', 'depends_on_work_order_id'],
-                'mwod_order_dependency_uq'
-            );
+				['work_order_id', 'depends_on_work_order_id'],
+				'mwod_order_dependency_uq'
+			);
             $table->index(['team_id', 'work_order_id']);
         });
     }
