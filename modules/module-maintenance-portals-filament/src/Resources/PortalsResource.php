@@ -25,6 +25,8 @@ class PortalsResource extends Resource
 {
     protected static ?string $model = PortalRecord::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

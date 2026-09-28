@@ -29,6 +29,8 @@ final class PriorityResource extends Resource
 {
     protected static ?string $model = Priority::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

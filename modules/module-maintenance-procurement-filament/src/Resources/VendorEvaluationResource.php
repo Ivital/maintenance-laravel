@@ -24,6 +24,8 @@ class VendorEvaluationResource extends Resource
 {
     protected static ?string $model = VendorPerformanceEvaluation::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-star';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

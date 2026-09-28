@@ -24,6 +24,8 @@ final class InspectionResource extends Resource
 {
     protected static ?string $model = Inspection::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

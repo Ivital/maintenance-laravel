@@ -25,6 +25,8 @@ class MaintenancePlanResource extends Resource
 {
     protected static ?string $model = MaintenancePlan::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

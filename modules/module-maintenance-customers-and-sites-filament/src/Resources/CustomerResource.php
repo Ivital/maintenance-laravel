@@ -25,6 +25,8 @@ class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

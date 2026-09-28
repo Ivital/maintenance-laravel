@@ -27,6 +27,8 @@ class VendorContractResource extends Resource
 {
     protected static ?string $model = VendorContract::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

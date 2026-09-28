@@ -28,6 +28,8 @@ class PurchaseRequestResource extends Resource
 {
     protected static ?string $model = PurchaseRequest::class;
 
+    protected static bool $isScopedToTenant = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';

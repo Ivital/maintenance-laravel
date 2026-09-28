@@ -20,11 +20,12 @@ use Liberu\Modules\Maintenance\Commercial\Filament\Resources\CommercialResource\
 use Liberu\Modules\Maintenance\Commercial\Filament\Resources\CommercialResource\Pages\EditCommercial;
 use Liberu\Modules\Maintenance\Commercial\Filament\Resources\CommercialResource\Pages\ListCommercial;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
-use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 
 class CommercialResource extends Resource
 {
     protected static ?string $model = CommercialRecord::class;
+
+    protected static bool $isScopedToTenant = false;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
