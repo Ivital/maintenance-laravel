@@ -1,0 +1,4 @@
+# GitHub Actions self-hosted runner may invoke exactly one root-owned
+# deployment entry point. All privileged deployment logic lives inside that
+# script; the runner receives no general sudo access.
+gh-runner ALL=(root) NOPASSWD: /usr/local/sbin/deploy-toir2 *

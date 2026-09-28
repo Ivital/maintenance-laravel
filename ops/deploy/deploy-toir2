@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+APP_DIR="/var/www/toir2"
+BUNDLE="/home/gh-runner/deploy-input/toir2-release.bundle"
+SHA_FILE="/home/gh-runner/deploy-input/toir2-release.sha"
+LOCK_FILE="/var/lock/toir2-deploy.lock"
+STATE_DIR="/var/lib/toir2-deploy"
+
+PHP_BIN="/usr/bin/php8.5"
+COMPOSER_BIN="/usr/bin/composer"
+NPM_BIN="/usr/bin/npm"
+
+WEB_USER="www-data"
+WEB_GROUP="www-data"
+
+log() {
+    printf '[%s] %s\n' "$(date --iso-8601=seconds)" "$*"
+}
+
+die() {
+    log "ERROR: $*"
+    exit 1
+}
+
+RELEASE_SHA="${1:-}"
+
+[[ "${RELEASE_SHA}" =~ ^[0-9a-f]{40}$ ]] \
+    || die "Expected a full 40-character Git commit SHA."
+
+[[ -d "${APP_DIR}/.git" ]] \
+    || die "${APP_DIR} is not a Git working tree."
+
+[[ -f "${APP_DIR}/.env" ]] \
+    || die "${APP_DIR}/.env is missing."
+
+[[ -f "${BUNDLE}" ]] \
+    || die "Deployment bundle is missing: ${BUNDLE}"
+
+[[ -f "${SHA_FILE}" ]] \
+    || die "Deployment SHA file is missing: ${SHA_FILE}"
+
+for command in git flock "${PHP_BIN}" "${COMPOSER_BIN}" "${NPM_BIN}"; do
+    command -v "${command}" >/dev/null 2>&1 \
+        || die "Required command is unavailable: ${command}"
+done
+
+EXPECTED_SHA="$(tr -d '[:space:]' < "${SHA_FILE}")"
+
+[[ "${EXPECTED_SHA}" == "${RELEASE_SHA}" ]] \
+    || die "Workflow SHA (${RELEASE_SHA}) does not match bundle SHA (${EXPECTED_SHA})."
+
+mkdir -p "${STATE_DIR}"
+
+exec 9>"${LOCK_FILE}"
+if ! flock -n 9; then
+    die "Another TOIR2 deployment is already running."
+fi
+
+CURRENT_SHA="$(git -c safe.directory="${APP_DIR}" -C "${APP_DIR}" rev-parse HEAD)"
+printf '%s\n' "${CURRENT_SHA}" > "${STATE_DIR}/previous.sha"
+
+log "Deploying TOIR2"
+log "Current commit: ${CURRENT_SHA}"
+log "Target commit:  ${RELEASE_SHA}"
+
+git bundle verify "${BUNDLE}" >/dev/null
+
+# Fetch the exact CI-tested commit from the immutable bundle produced by the
+# self-hosted GitHub Actions runner. No network fetch is performed here.
+git -c safe.directory="${APP_DIR}" -C "${APP_DIR}" fetch --force "${BUNDLE}" "${RELEASE_SHA}"
+
+FETCHED_SHA="$(git -c safe.directory="${APP_DIR}" -C "${APP_DIR}" rev-parse FETCH_HEAD)"
+[[ "${FETCHED_SHA}" == "${RELEASE_SHA}" ]] \
+    || die "Fetched commit (${FETCHED_SHA}) does not match requested commit (${RELEASE_SHA})."
+
+MAINTENANCE_ENABLED=0
+
+on_error() {
+    exit_code=$?
+    log "DEPLOY FAILED with exit code ${exit_code}."
+
+    if [[ "${MAINTENANCE_ENABLED}" -eq 1 ]]; then
+        log "Application remains in maintenance mode for investigation."
+    fi
+
+    exit "${exit_code}"
+}
+trap on_error ERR
+
+log "Enabling Laravel maintenance mode"
+"${PHP_BIN}" "${APP_DIR}/artisan" down --retry=60 || true
+MAINTENANCE_ENABLED=1
+
+log "Resetting application source to tested commit"
+git -c safe.directory="${APP_DIR}" -C "${APP_DIR}" reset --hard "${RELEASE_SHA}"
+
+ACTUAL_SHA="$(git -c safe.directory="${APP_DIR}" -C "${APP_DIR}" rev-parse HEAD)"
+[[ "${ACTUAL_SHA}" == "${RELEASE_SHA}" ]] \
+    || die "Working tree commit (${ACTUAL_SHA}) does not match requested commit (${RELEASE_SHA})."
+
+log "Installing production Composer dependencies"
+(
+    cd "${APP_DIR}"
+    COMPOSER_ALLOW_SUPERUSER=1 \
+        "${COMPOSER_BIN}" install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --optimize-autoloader \
+        --no-progress
+)
+
+log "Installing frontend dependencies"
+(
+    cd "${APP_DIR}"
+    "${NPM_BIN}" ci --no-audit --no-fund
+)
+
+log "Building frontend assets"
+(
+    cd "${APP_DIR}"
+    "${NPM_BIN}" run build
+)
+
+log "Clearing stale Laravel caches"
+"${PHP_BIN}" "${APP_DIR}/artisan" optimize:clear
+
+log "Running database migrations"
+"${PHP_BIN}" "${APP_DIR}/artisan" migrate --force
+
+log "Ensuring public storage link exists"
+"${PHP_BIN}" "${APP_DIR}/artisan" storage:link --force
+
+log "Building Laravel production caches"
+"${PHP_BIN}" "${APP_DIR}/artisan" optimize
+
+log "Restarting long-running queue workers"
+"${PHP_BIN}" "${APP_DIR}/artisan" queue:restart
+
+log "Applying writable-directory permissions"
+install -d -o "${WEB_USER}" -g "${WEB_GROUP}" -m 0775 \
+    "${APP_DIR}/storage" \
+    "${APP_DIR}/bootstrap/cache"
+
+chown -R "${WEB_USER}:${WEB_GROUP}" \
+    "${APP_DIR}/storage" \
+    "${APP_DIR}/bootstrap/cache"
+
+find "${APP_DIR}/storage" "${APP_DIR}/bootstrap/cache" \
+    -type d -exec chmod 0775 {} +
+
+find "${APP_DIR}/storage" "${APP_DIR}/bootstrap/cache" \
+    -type f -exec chmod 0664 {} +
+
+printf '%s\n' "${RELEASE_SHA}" > "${STATE_DIR}/current.sha"
+date --iso-8601=seconds > "${STATE_DIR}/deployed-at"
+
+log "Disabling Laravel maintenance mode"
+"${PHP_BIN}" "${APP_DIR}/artisan" up
+MAINTENANCE_ENABLED=0
+
+trap - ERR
+
+log "TOIR2 deployment completed successfully: ${RELEASE_SHA}"
