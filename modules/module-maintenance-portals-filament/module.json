@@ -12,6 +12,16 @@
       "liberusoftware/module-maintenance-portals": "0.1.0"
     }
   },
+  "presentation": {
+    "filament": {
+      "admin": [
+        "Liberu\\Modules\\Maintenance\\Portals\\Filament\\PortalsFilamentPlugin"
+      ],
+      "app": [
+        "Liberu\\Modules\\Maintenance\\Portals\\Filament\\PortalsFilamentPlugin"
+      ]
+    }
+  },
   "capabilities": [
     "maintenance.portals.filament"
   ],

@@ -12,6 +12,16 @@
       "liberusoftware/module-maintenance-compliance": "0.1.0"
     }
   },
+  "presentation": {
+    "filament": {
+      "admin": [
+        "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\ComplianceFilamentPlugin"
+      ],
+      "app": [
+        "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\ComplianceFilamentPlugin"
+      ]
+    }
+  },
   "capabilities": [
     "maintenance.compliance.filament"
   ],

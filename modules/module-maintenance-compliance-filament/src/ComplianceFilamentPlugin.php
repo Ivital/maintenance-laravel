@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Compliance\Filament;
 
+use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\PanelPlugin;
 use Liberu\Modules\Maintenance\Compliance\Filament\Resources\ComplianceResource;
 
-class ComplianceFilamentPlugin implements PanelPlugin
+class ComplianceFilamentPlugin implements Plugin
 {
     public function getId(): string
     {

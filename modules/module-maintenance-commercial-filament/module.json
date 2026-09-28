@@ -12,6 +12,16 @@
       "liberusoftware/module-maintenance-commercial": "0.1.0"
     }
   },
+  "presentation": {
+    "filament": {
+      "admin": [
+        "Liberu\\Modules\\Maintenance\\Commercial\\Filament\\CommercialFilamentPlugin"
+      ],
+      "app": [
+        "Liberu\\Modules\\Maintenance\\Commercial\\Filament\\CommercialFilamentPlugin"
+      ]
+    }
+  },
   "capabilities": [
     "maintenance.commercial.filament"
   ],

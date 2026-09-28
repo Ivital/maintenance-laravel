@@ -1,1 +1,32 @@
-{"name":"module-maintenance-procurement-filament","display_name":"Maintenance Procurement Filament","description":"Filament 5 adapter for procurement.","version":"0.1.0","category":"presentation","provider":"Liberu\\Modules\\Maintenance\\Procurement\\Filament\\ProcurementFilamentServiceProvider","requires":{"packages":{"liberusoftware/module-maintenance-procurement":"0.1.0"}},"capabilities":["maintenance.procurement.filament"],"default_enabled":true,"features":["Purchase request resource"]}
+{
+  "name": "module-maintenance-procurement-filament",
+  "display_name": "Maintenance Procurement Filament",
+  "description": "Filament 5 adapter for procurement.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Procurement\\Filament\\ProcurementFilamentServiceProvider",
+  "requires": {
+    "packages": {
+      "liberusoftware/module-maintenance-procurement": "0.1.0"
+    }
+  },
+  "presentation": {
+    "filament": {
+      "admin": [
+        "Liberu\\Modules\\Maintenance\\Procurement\\Filament\\ProcurementFilamentPlugin"
+      ],
+      "app": [
+        "Liberu\\Modules\\Maintenance\\Procurement\\Filament\\ProcurementFilamentPlugin"
+      ]
+    }
+  },
+  "capabilities": [
+    "maintenance.procurement.filament"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Purchase request resource",
+    "Vendor contract resource",
+    "Vendor evaluation resource"
+  ]
+}

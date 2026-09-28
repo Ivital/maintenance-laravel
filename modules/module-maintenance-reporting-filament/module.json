@@ -12,6 +12,16 @@
       "liberusoftware/module-maintenance-reporting": "0.1.0"
     }
   },
+  "presentation": {
+    "filament": {
+      "admin": [
+        "Liberu\\Modules\\Maintenance\\Reporting\\Filament\\ReportingFilamentPlugin"
+      ],
+      "app": [
+        "Liberu\\Modules\\Maintenance\\Reporting\\Filament\\ReportingFilamentPlugin"
+      ]
+    }
+  },
   "capabilities": [
     "maintenance.reporting.filament"
   ],

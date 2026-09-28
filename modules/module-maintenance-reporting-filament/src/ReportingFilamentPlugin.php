@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Reporting\Filament;
 
+use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\PanelPlugin;
-use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource;
+use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource;
 
-class ReportingFilamentPlugin implements PanelPlugin
+class ReportingFilamentPlugin implements Plugin
 {
     public function getId(): string
     {
