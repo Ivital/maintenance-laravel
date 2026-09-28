@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +33,39 @@ class VendorEvaluationResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('vendor_name')->required()->maxLength(255), DatePicker::make('evaluation_date')->required(), TextInput::make('quality_rating')->numeric()->minValue(0)->maxValue(5), TextInput::make('timeliness_rating')->numeric()->minValue(0)->maxValue(5), TextInput::make('communication_rating')->numeric()->minValue(0)->maxValue(5), TextInput::make('cost_effectiveness_rating')->numeric()->minValue(0)->maxValue(5), TextInput::make('professionalism_rating')->numeric()->minValue(0)->maxValue(5)]);
+        return $schema->components([
+            TextInput::make('vendor_name')
+                ->required()
+                ->maxLength(255),
+
+            DatePicker::make('evaluation_date')
+                ->required(),
+
+            TextInput::make('quality_rating')
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(5),
+
+            TextInput::make('timeliness_rating')
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(5),
+
+            TextInput::make('communication_rating')
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(5),
+
+            TextInput::make('cost_effectiveness_rating')
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(5),
+
+            TextInput::make('professionalism_rating')
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(5),
+        ]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -40,23 +73,49 @@ class VendorEvaluationResource extends Resource
         $query = parent::getEloquentQuery();
         $tenant = Filament::getTenant() ?? auth()->user()?->currentTeam;
 
-        return $tenant === null ? $query->whereRaw('1=0') : $query->where('team_id', $tenant->getKey());
+        return $tenant === null
+            ? $query->whereRaw('1=0')
+            : $query->where('team_id', $tenant->getKey());
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('vendor_name')->searchable(), TextColumn::make('evaluation_date')->date()->sortable(), TextColumn::make('overall_rating')->sortable(), TextColumn::make('would_recommend')->boolean()])->recordActions([
-            EditAction::make(),
-            DeleteAction::make()->action(function (VendorPerformanceEvaluation $record): void {
-                $teamId = auth()->user()?->currentTeam?->getKey();
-                abort_if($teamId === null, 403);
-                app(DeleteVendorPerformanceEvaluation::class)->handle((int) $teamId, $record);
-            }),
-        ]);
+        return $table
+            ->columns([
+                TextColumn::make('vendor_name')
+                    ->searchable(),
+
+                TextColumn::make('evaluation_date')
+                    ->date()
+                    ->sortable(),
+
+                TextColumn::make('overall_rating')
+                    ->sortable(),
+
+                IconColumn::make('would_recommend')
+                    ->boolean(),
+            ])
+            ->recordActions([
+                EditAction::make(),
+
+                DeleteAction::make()
+                    ->action(function (VendorPerformanceEvaluation $record): void {
+                        $teamId = auth()->user()?->currentTeam?->getKey();
+
+                        abort_if($teamId === null, 403);
+
+                        app(DeleteVendorPerformanceEvaluation::class)
+                            ->handle((int) $teamId, $record);
+                    }),
+            ]);
     }
 
     public static function getPages(): array
     {
-        return ['index' => ListVendorEvaluations::route('/'), 'create' => CreateVendorEvaluation::route('/create'), 'edit' => EditVendorEvaluation::route('/{record}/edit')];
+        return [
+            'index' => ListVendorEvaluations::route('/'),
+            'create' => CreateVendorEvaluation::route('/create'),
+            'edit' => EditVendorEvaluation::route('/{record}/edit'),
+        ];
     }
 }
