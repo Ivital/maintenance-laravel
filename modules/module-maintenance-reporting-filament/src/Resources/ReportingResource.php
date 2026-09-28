@@ -17,11 +17,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
+use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\CreateReport;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\EditReport;
 use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages\ListReports;
-use Liberu\Modules\Maintenance\Report\Models\ReportKind;
-use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 class ReportingResource extends Resource
 {
